@@ -9,6 +9,7 @@
 server:
   error:
     include-message: always
+  port: 8020
 spring:
   main:
     web-application-type: servlet
