@@ -1,0 +1,28 @@
+#To change the port no
+#server:
+#  port: 3000
+# to disable the web server
+#spring:
+#  main:
+#    web-application-type: none
+
+server:
+  error:
+    include-message: always
+spring:
+  main:
+    web-application-type: servlet
+  datasource:
+    url: jdbc:postgresql://localhost:5432/customer
+    username: amigoscode
+    password: password
+  jpa:
+    hibernate:
+#      ddl-auto: create-drop
+#      ddl-auto: none
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
