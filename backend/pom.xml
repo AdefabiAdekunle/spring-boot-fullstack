@@ -19,6 +19,9 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
+		<docker.username>adekunle007</docker.username>
+		<docker.image.name>adekunle-api</docker.image.name>
+		<docker.image.tag/>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -173,7 +176,9 @@
 						</platforms>
 					</from>
 					<to>
-						<image>docker.io/${organization.name}/${project.artifactId}:${project.version}</image>
+<!--						before CD process workflow-->
+<!--						<image>docker.io/${organization.name}/${project.artifactId}:${project.version}</image>-->
+						<image>docker.io/${docker.username}/${docker.image.name}:${docker.image.tag}</image>
 						<tags>
 							<tag>latest</tag>
 						</tags>
