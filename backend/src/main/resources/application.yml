@@ -5,7 +5,9 @@
 #spring:
 #  main:
 #    web-application-type: none
-
+cors:
+  allowed-origins: "*"
+  allowed-methods: "*"
 server:
   error:
     include-message: always
