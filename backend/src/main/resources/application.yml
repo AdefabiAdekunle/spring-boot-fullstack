@@ -8,6 +8,8 @@
 cors:
   allowed-origins: "*"
   allowed-methods: "*"
+  allowed-headers: "*"
+  exposed-headers: "*"
 server:
   error:
     include-message: always

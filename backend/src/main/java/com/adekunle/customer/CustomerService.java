@@ -4,26 +4,38 @@ import com.adekunle.exception.DuplicateResourceException;
 import com.adekunle.exception.RequestValidationException;
 import com.adekunle.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerService {
 
     private final CustomerDao customerDao;
 
-    public CustomerService(@Qualifier("jdbc") CustomerDao customerDao) {
+    private final PasswordEncoder passwordEncoder;
+
+    private final CustomerDTOMapper customerDTOMapper;
+
+    public CustomerService(@Qualifier("jdbc") CustomerDao customerDao, PasswordEncoder passwordEncoder, CustomerDTOMapper customerDTOMapper) {
         this.customerDao = customerDao;
+        this.passwordEncoder = passwordEncoder;
+        this.customerDTOMapper = customerDTOMapper;
     }
 
 
-    public List<Customer> getAllCustomers() {
-        return customerDao.selectAllCustomer();
+    public List<CustomerDTO> getAllCustomers() {
+        return customerDao.selectAllCustomer()
+                .stream()
+                .map(customerDTOMapper)
+                .collect(Collectors.toList());
     }
 
-    public Customer getCustomer(Integer id) {
+    public CustomerDTO getCustomer(Integer id) {
         return customerDao.selectCustomerById(id)
+                .map(customerDTOMapper)
                 .orElseThrow(
                         () -> new ResourceNotFoundException("customer with id [%s] not found".formatted(id))
                         //() -> new IllegalArgumentException("customer with id [%s] not found".formatted(id))
@@ -42,8 +54,9 @@ public class CustomerService {
             Customer customer = new Customer(
                     customerRegistrationRequest.name(),
                     customerRegistrationRequest.email(),
-                    customerRegistrationRequest.age()
-            );
+                    customerRegistrationRequest.age(),
+                    customerRegistrationRequest.gender(),
+                    passwordEncoder.encode(customerRegistrationRequest.password()));
 
             customerDao.insertCustomer(customer);
 
@@ -59,7 +72,11 @@ public class CustomerService {
     }
 
     public void updateCustomer(Integer id, CustomerUpdateRequest customerUpdateRequest) {
-        Customer customer = getCustomer(id);
+        Customer customer = customerDao.selectCustomerById(id)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("customer with id [%s] not found".formatted(id))
+                        //() -> new IllegalArgumentException("customer with id [%s] not found".formatted(id))
+                );
         boolean changes = false;
 
         if (customerUpdateRequest.name() != null && !customerUpdateRequest.name().equals(customer.getName())) {

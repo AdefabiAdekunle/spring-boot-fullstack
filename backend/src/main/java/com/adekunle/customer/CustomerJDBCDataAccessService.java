@@ -58,14 +58,16 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
     @Override
     public void insertCustomer(Customer customer) {
         var sql = """
-                INSERT INTO customer(name, email, age)
-                VALUES (?, ? , ?)
+                INSERT INTO customer(name, email, age, gender, password)
+                VALUES (?, ? , ?, ?, ?)
                 """;
         int update = jdbcTemplate.update(
                 sql,
                 customer.getName(),
                 customer.getEmail(),
-                customer.getAge()
+                customer.getAge(),
+                customer.getGender().toString(),
+                customer.getPassword()
         );
         System.out.println("jdbcTemplate.update = "+ update);
     }
@@ -107,9 +109,9 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
     @Override
     public void updateCustomer(Customer request) {
         var sql = """
-    UPDATE customer SET name = ?, email = ?, age = ? WHERE id = ?
+    UPDATE customer SET name = ?, email = ?, age = ?, gender = ? , password = ? WHERE id = ?
               """;
-     int result = jdbcTemplate.update(sql, request.getName(), request.getEmail(), request.getAge(), request.getId());
+     int result = jdbcTemplate.update(sql, request.getName(), request.getEmail(), request.getAge(),request.getGender().toString(),request.getPassword(), request.getId());
         System.out.println("update customer result = " + result);
 
      //OR
@@ -140,5 +142,13 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
 //            System.out.println("update customer email result = " + result);
 //        }
 
+    }
+
+    @Override
+    public Optional<Customer> selectUserByEmail(String email) {
+        var sql = """
+               SELECT * FROM customer where email = ?;
+                """;
+        return jdbcTemplate.query(sql,customerRowMapper, email).stream().findFirst();
     }
 }

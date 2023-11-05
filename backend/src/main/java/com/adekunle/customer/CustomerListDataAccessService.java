@@ -1,6 +1,5 @@
 package com.adekunle.customer;
 
-import com.adekunle.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -15,8 +14,8 @@ public class CustomerListDataAccessService implements CustomerDao{
 
     static {
         customers = new ArrayList<>();
-        Customer alex = new Customer(1,"Alex","alex@gmail.com",21);
-        Customer jamila = new Customer(2,"jamila","jamila@gmail.com",19);
+        Customer alex = new Customer(1,"Alex","alex@gmail.com",21,Gender.MALE, "password");
+        Customer jamila = new Customer(2,"jamila","jamila@gmail.com",19,Gender.FEMALE, "password");
         customers.add(alex);
         customers.add(jamila);
 
@@ -29,6 +28,11 @@ public class CustomerListDataAccessService implements CustomerDao{
     @Override
     public Optional<Customer> selectCustomerById(Integer id) {
         return customers.stream().filter(customer -> customer.getId().equals(id))
+                .findFirst();
+    }
+    @Override
+    public Optional<Customer> selectUserByEmail(String email) {
+        return customers.stream().filter(customer -> customer.getEmail().equals(email))
                 .findFirst();
     }
     @Override

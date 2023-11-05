@@ -36,6 +36,8 @@ class CustomerRowMapperTest {
         when(rs.getString("name")).thenReturn("John Doe");
         when(rs.getString("email")).thenReturn("johndoe@example.com");
         when(rs.getInt("age")).thenReturn(30);
+        when(rs.getString("gender")).thenReturn("MALE");
+        when(rs.getString("password")).thenReturn("password");
 
         Customer customer = underTest.mapRow(rs , 1);
 
@@ -43,6 +45,7 @@ class CustomerRowMapperTest {
         assertThat("John Doe").isEqualTo(customer.getName());
         assertThat("johndoe@example.com").isEqualTo(customer.getEmail());
         assertThat(30).isEqualTo(customer.getAge());
+        assertThat(Gender.MALE).isEqualTo(customer.getGender());
 
 
     }

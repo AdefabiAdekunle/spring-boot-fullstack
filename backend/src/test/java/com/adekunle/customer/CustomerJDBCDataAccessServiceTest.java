@@ -3,7 +3,6 @@ package com.adekunle.customer;
 import com.adekunle.AbstractTestContainersUnitTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 import java.util.UUID;
@@ -29,8 +28,9 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestContainersUnitTest {
         Customer customer = new Customer(
                 FAKER.name().fullName(),
                 FAKER.internet().emailAddress() + "-" + UUID.randomUUID(),
-                20
-        );
+                20,
+                Gender.MALE,
+                "password");
         underTest.insertCustomer(customer);
 
 
@@ -48,8 +48,9 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestContainersUnitTest {
         Customer customer1 = new Customer(
                 FAKER.name().fullName(),
                 email,
-                20
-        );
+                20,
+                Gender.MALE,
+                "password");
 
         underTest.insertCustomer(customer1);
         Integer id = underTest.selectAllCustomer()
@@ -89,8 +90,9 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestContainersUnitTest {
         Customer customer = new Customer(
                 name,
                 FAKER.internet().emailAddress() + "-" + UUID.randomUUID(),
-                40
-        );
+                40,
+                Gender.MALE,
+                "password");
 
 
 
@@ -115,8 +117,9 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestContainersUnitTest {
         Customer customer1 = new Customer(
                 FAKER.name().fullName(),
                 email,
-                20
-        );
+                20,
+                Gender.FEMALE,
+                "password");
 
         underTest.insertCustomer(customer1);
 
@@ -147,8 +150,9 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestContainersUnitTest {
         Customer customer = new Customer(
                 name,
                 FAKER.internet().emailAddress() + "-" + UUID.randomUUID(),
-                40
-        );
+                40,
+                Gender.MALE,
+                "password");
         underTest.insertCustomer(customer);
         Integer id = underTest.selectAllCustomer()
                 .stream().filter(customer1 -> customer1.getName().equalsIgnoreCase(name))
@@ -172,8 +176,9 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestContainersUnitTest {
         Customer customer = new Customer(
                 name,
                 FAKER.internet().emailAddress() + "-" + UUID.randomUUID(),
-                40
-        );
+                40,
+                Gender.MALE,
+                "password");
         underTest.insertCustomer(customer);
         Integer id = underTest.selectAllCustomer()
                 .stream().filter(customer1 -> customer1.getName().equalsIgnoreCase(name))
@@ -209,8 +214,9 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestContainersUnitTest {
         Customer customer = new Customer(
                 name,
                 FAKER.internet().emailAddress() + "-" + UUID.randomUUID(),
-                40
-        );
+                40,
+                Gender.FEMALE,
+                "password");
         underTest.insertCustomer(customer);
         Customer customer1 = underTest.selectAllCustomer().stream()
                 .filter( c -> c.getName().equals(name))

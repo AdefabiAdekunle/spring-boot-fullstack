@@ -2,11 +2,15 @@ package com.adekunle;
 
 import com.adekunle.customer.Customer;
 import com.adekunle.customer.CustomerRepository;
+import com.adekunle.customer.Gender;
 import com.github.javafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.UUID;
 
 @SpringBootApplication
 public class Main {
@@ -47,7 +51,7 @@ public class Main {
     //We want to save customers into the database when the application starts
     // we use the command line runner and annotate with Bean
     @Bean
-    CommandLineRunner runner(CustomerRepository customerRepository) {
+    CommandLineRunner runner(CustomerRepository customerRepository, PasswordEncoder passwordEncoder) {
         Faker faker = new Faker();
         return args -> {
            // faker.internet().emailAddress();
@@ -57,8 +61,9 @@ public class Main {
             Customer customer = new Customer(
                     firstname,
                     emailAddress,
-                    age
-            );
+                    age,
+                    Gender.MALE,
+                    passwordEncoder.encode(UUID.randomUUID().toString()));
             customerRepository.save(customer);
 
             // without using faker

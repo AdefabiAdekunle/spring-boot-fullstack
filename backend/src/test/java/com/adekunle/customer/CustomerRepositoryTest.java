@@ -1,20 +1,21 @@
 package com.adekunle.customer;
 
 import com.adekunle.AbstractTestContainersUnitTest;
+import com.adekunle.TestConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import({TestConfig.class})
 class CustomerRepositoryTest extends AbstractTestContainersUnitTest {
 
 
@@ -23,6 +24,7 @@ class CustomerRepositoryTest extends AbstractTestContainersUnitTest {
 
     @BeforeEach
     void setUp() {
+        underTest.deleteAll();
     }
 
     @Test
@@ -32,8 +34,9 @@ class CustomerRepositoryTest extends AbstractTestContainersUnitTest {
         Customer customer1 = new Customer(
                 FAKER.name().fullName(),
                 email,
-                20
-        );
+                20,
+                Gender.FEMALE,
+                "password");
 
         underTest.save(customer1);
 
@@ -50,8 +53,9 @@ class CustomerRepositoryTest extends AbstractTestContainersUnitTest {
         Customer customer = new Customer(
                 name,
                 FAKER.internet().emailAddress() + "-" + UUID.randomUUID(),
-                40
-        );
+                40,
+                Gender.MALE,
+                "password");
         underTest.save(customer);
         Integer id = underTest.findAll()
                 .stream().filter(customer1 -> customer1.getName().equalsIgnoreCase(name))
