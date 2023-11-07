@@ -18,13 +18,13 @@ spring:
   main:
     web-application-type: servlet
   datasource:
-    url: jdbc:postgresql://localhost:5432/customer
+    url: jdbc:postgresql://awseb-e-psmh9yvtve-stack-awsebrdsdatabase-cwj2zgwhrxl5.cqfld9zlmnkq.us-east-2.rds.amazonaws.com:5432/customer
     username: amigoscode
     password: password
   jpa:
     hibernate:
-#      ddl-auto: create-drop
-#      ddl-auto: none
+      #      ddl-auto: create-drop
+      #      ddl-auto: none
       ddl-auto: validate
     properties:
       hibernate:
