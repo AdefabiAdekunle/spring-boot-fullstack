@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -238,5 +239,54 @@ class CustomerJDBCDataAccessServiceTest extends AbstractTestContainersUnitTest {
         //Then
         assertThat(customer2.getName()).isEqualTo(name1);
         assertThat(customer2.getId()).isEqualTo(requestId);
+    }
+
+    @Test
+    void selectUserByEmail() {
+        //Given
+        String name = FAKER.name().fullName();
+        String email = FAKER.internet().emailAddress() + "-" + UUID.randomUUID();
+        Customer customer = new Customer(
+                name,
+                email,
+                40,
+                Gender.MALE,
+                "password");
+        underTest.insertCustomer(customer);
+
+        //When
+        Optional<Customer> actual = underTest.selectUserByEmail(email);
+
+        //Then
+        assertThat(actual).isPresent()
+                .hasValueSatisfying(customer1 -> assertThat(customer1.getEmail()).isEqualTo(email));
+    }
+
+    @Test
+    void updateCustomerProfileImageId() {
+        //Given
+        String name = FAKER.name().fullName();
+        String email = FAKER.internet().emailAddress() + "-" + UUID.randomUUID();
+        Customer customer = new Customer(
+                name,
+                email,
+                40,
+                Gender.MALE,
+                "password");
+        underTest.insertCustomer(customer);
+        Integer id = underTest.selectAllCustomer()
+                .stream().filter(customer1 -> customer1.getName().equalsIgnoreCase(name))
+                .map(Customer::getId)
+                .findFirst()
+                .orElseThrow();
+
+        //when
+        underTest.updateCustomerProfileImageId("2222",id);
+
+        Optional<Customer> actual = underTest.selectCustomerById(id);
+
+        assertThat(actual).isPresent()
+                .hasValueSatisfying(c -> assertThat(c.getProfileImageId()).isEqualTo("2222"));
+
     }
 }

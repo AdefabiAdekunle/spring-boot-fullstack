@@ -10,6 +10,12 @@ cors:
   allowed-methods: "*"
   allowed-headers: "*"
   exposed-headers: "*"
+aws:
+  region: us-east-2
+  s3:
+    mock: true
+    buckets:
+      customer: fs-adekunle-customer-test
 server:
   error:
     include-message: always
@@ -31,6 +37,13 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     show-sql: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  codec:
+    max-in-memory-size: 10MB
+
 # for Actuator
 management:
   endpoints:

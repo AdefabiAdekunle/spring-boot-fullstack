@@ -1,5 +1,6 @@
 package com.adekunle.customer;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class CustomerJPADataAccessService implements CustomerDao {
 
     @Override
     public List<Customer> selectAllCustomer() {
-        return customerRepository.findAll();
+        return customerRepository.findAll(Pageable.ofSize(1000)).getContent();
     }
 
     @Override
@@ -52,5 +53,10 @@ public class CustomerJPADataAccessService implements CustomerDao {
     @Override
     public Optional<Customer> selectUserByEmail(String email) {
         return customerRepository.findCustomersByEmail(email);
+    }
+
+    @Override
+    public void updateCustomerProfileImageId(String profileImageId, Integer customerId) {
+        customerRepository.updateProfileImageId(profileImageId, customerId);
     }
 }

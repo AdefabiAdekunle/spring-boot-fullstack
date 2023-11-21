@@ -3,11 +3,16 @@ package com.adekunle.customer;
 import com.adekunle.exception.DuplicateResourceException;
 import com.adekunle.exception.RequestValidationException;
 import com.adekunle.exception.ResourceNotFoundException;
+import com.adekunle.s3.S3Buckets;
+import com.adekunle.s3.S3Service;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,10 +24,15 @@ public class CustomerService {
 
     private final CustomerDTOMapper customerDTOMapper;
 
-    public CustomerService(@Qualifier("jdbc") CustomerDao customerDao, PasswordEncoder passwordEncoder, CustomerDTOMapper customerDTOMapper) {
+    private final S3Service s3Service;
+    private final S3Buckets s3Buckets;
+
+    public CustomerService(@Qualifier("jdbc") CustomerDao customerDao, PasswordEncoder passwordEncoder, CustomerDTOMapper customerDTOMapper, S3Service s3Service, S3Buckets s3Buckets) {
         this.customerDao = customerDao;
         this.passwordEncoder = passwordEncoder;
         this.customerDTOMapper = customerDTOMapper;
+        this.s3Service = s3Service;
+        this.s3Buckets = s3Buckets;
     }
 
 
@@ -170,5 +180,44 @@ public class CustomerService {
         }
 
         return false;
+    }
+
+    public void uploadCustomerImage(Integer customerId, MultipartFile file) {
+        //check if customer exist first
+        if (!customerDao.checkIfIdExist(customerId)) {
+            throw  new ResourceNotFoundException("customer with id [%s] not found".formatted(customerId));
+        }
+
+        String profileImageId = UUID.randomUUID().toString();
+        try {
+            s3Service.putObject(
+                    s3Buckets.getCustomer(),
+                    "profile-images/%s/%s".formatted(customerId, profileImageId),
+                    file.getBytes()
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        // Store profileImageId to postgres
+        customerDao.updateCustomerProfileImageId(profileImageId, customerId);
+    }
+
+    public byte[] getCustomerProfileImage(Integer customerId) {
+        CustomerDTO customer = customerDao.selectCustomerById(customerId)
+                .map(customerDTOMapper)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("customer with id [%s] not found".formatted(customerId))
+                        //() -> new IllegalArgumentException("customer with id [%s] not found".formatted(id))
+                );
+
+        //check if profileImageId is empty or nul
+        if(customer.profileImageId().isBlank()) {
+            throw new ResourceNotFoundException("customer with id [%s] profile Image not found".formatted(customerId));
+        }
+
+        return s3Service.getObject(
+                s3Buckets.getCustomer(),
+                "profile-images/%s/%s".formatted(customerId, customer.profileImageId())
+        );
     }
 }

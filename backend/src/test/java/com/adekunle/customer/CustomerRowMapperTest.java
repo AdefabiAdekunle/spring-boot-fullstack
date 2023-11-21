@@ -38,6 +38,7 @@ class CustomerRowMapperTest {
         when(rs.getInt("age")).thenReturn(30);
         when(rs.getString("gender")).thenReturn("MALE");
         when(rs.getString("password")).thenReturn("password");
+        when(rs.getString("profile_image_id")).thenReturn("222252525");
 
         Customer customer = underTest.mapRow(rs , 1);
 

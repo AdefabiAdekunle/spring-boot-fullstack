@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,4 +70,55 @@ class CustomerRepositoryTest extends AbstractTestContainersUnitTest {
         //Then
         assertThat(actual).isTrue();
     }
+
+    @Test
+    void findCustomersByEmail() {
+        String name = FAKER.name().fullName();
+        Customer customer = new Customer(
+                name,
+                FAKER.internet().emailAddress() + "-" + UUID.randomUUID(),
+                40,
+                Gender.MALE,
+                "password");
+        underTest.save(customer);
+
+        Optional<Customer> expected = underTest.findAll()
+                .stream().filter(customer1 -> customer1.getName().equals(customer.getName()))
+                .findFirst();
+        Optional<Customer> actual = underTest.findCustomersByEmail(customer.getEmail());
+
+        assertThat(actual).isEqualTo(expected);
+
+    }
+
+    @Test
+    void updateProfileImageId() {
+        String name = FAKER.name().fullName();
+        Customer customer = new Customer(
+                name,
+                FAKER.internet().emailAddress() + "-" + UUID.randomUUID(),
+                40,
+                Gender.MALE,
+                "password"
+        );
+        underTest.save(customer);
+
+        Integer id = underTest.findAll()
+                .stream().filter(customer1 -> customer1.getName().equalsIgnoreCase(name))
+                .map(Customer::getId)
+                .findFirst()
+                .orElseThrow();
+
+
+
+        int result = underTest.updateProfileImageId("2222", id);
+
+        Optional<Customer> updatedCustomer = underTest.findById(id);
+
+        assertThat(result).isGreaterThan(0);
+        assertThat(updatedCustomer).isPresent()
+                .hasValueSatisfying( c -> assertThat(c.getProfileImageId()).isEqualTo("2222"));
+
+    }
+
 }

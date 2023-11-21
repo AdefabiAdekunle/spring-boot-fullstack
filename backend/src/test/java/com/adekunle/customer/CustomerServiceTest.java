@@ -3,14 +3,19 @@ package com.adekunle.customer;
 import com.adekunle.exception.DuplicateResourceException;
 import com.adekunle.exception.RequestValidationException;
 import com.adekunle.exception.ResourceNotFoundException;
+import com.adekunle.s3.S3Buckets;
+import com.adekunle.s3.S3Service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,10 +33,16 @@ class CustomerServiceTest {
     private CustomerService underTest;
     private final CustomerDTOMapper customerDTOMapper = new CustomerDTOMapper();
 
+    @Mock
+    private S3Service s3Service;
+
+    @Mock
+    private S3Buckets s3Buckets;
+
 
     @BeforeEach
     void setUp() {
-        underTest = new CustomerService(customerDao, passwordEncoder, customerDTOMapper);
+        underTest = new CustomerService(customerDao, passwordEncoder, customerDTOMapper, s3Service, s3Buckets);
     }
 
     @Test
@@ -230,6 +241,136 @@ class CustomerServiceTest {
 
         verify(customerDao, never()).updateCustomer(any());
 
+    }
+
+    @Test
+    void canUploadProfileImage() {
+        //Given
+        int id  = 19;
+        when(customerDao.checkIfIdExist(id)).thenReturn(true);
+
+        byte[] bytes = "Hello World".getBytes();
+        MultipartFile multipartFile = new MockMultipartFile("file", bytes);
+        String bucket = "customer-bucket";
+        when(s3Buckets.getCustomer()).thenReturn(bucket);
+
+        // When
+        underTest.uploadCustomerImage(id,  multipartFile);
+
+        // Then
+
+        ArgumentCaptor<String> profileImageIdArgumentCaptor = ArgumentCaptor.forClass(String.class);
+        // since we capture one of the argument the other must have eq
+        verify(customerDao).updateCustomerProfileImageId(profileImageIdArgumentCaptor.capture(), eq(id));
+
+        // since we capture one of the argument the others must have eq
+        verify(s3Service).putObject(
+                eq(bucket),
+                "profile-images/%s/%s".formatted(id, profileImageIdArgumentCaptor.capture()),
+                eq(bytes)
+        );
+    }
+
+    @Test
+    void cannotUploadProfileImageWhenCustomerDoesNotExists() {
+        //Given
+        int id  = 19;
+        when(customerDao.checkIfIdExist(id)).thenReturn(false);
+        byte[] bytes = "Hello World".getBytes();
+        MultipartFile multipartFile = new MockMultipartFile("file", bytes);
+
+
+        assertThatThrownBy(() -> underTest.uploadCustomerImage(id, multipartFile))
+                .isInstanceOf(ResourceNotFoundException.class)
+                        .hasMessage("customer with id [%s] not found".formatted(id));
+
+        verify(customerDao).checkIfIdExist(id);
+        verifyNoMoreInteractions(customerDao);
+        verify(s3Buckets, never()).getCustomer(); // or verifyNoInteractions(s3Buckets);
+        verify(s3Service, never()).putObject(any(), any(), any()); // or verifyNoInteractions(s3Service);
+    }
+
+    @Test
+    void cannotUploadProfileImageWhenExceptionIsThrown() throws IOException {
+        //Given
+        int id  = 19;
+        when(customerDao.checkIfIdExist(id)).thenReturn(true);
+
+        MultipartFile multipartFile = mock(MultipartFile.class);
+        when(multipartFile.getBytes()).thenThrow(IOException.class);
+
+        String bucket = "customer-bucket";
+        when(s3Buckets.getCustomer()).thenReturn(bucket);
+
+        // When
+        assertThatThrownBy(() -> underTest.uploadCustomerImage(id,  multipartFile))
+                .isInstanceOf(RuntimeException.class)
+                        .hasRootCauseInstanceOf(IOException.class);
+
+        // Then
+
+        verify(customerDao, never()).updateCustomerProfileImageId(any(), any());
+
+    }
+
+    @Test
+    void canDownloadProfileImage() {
+        //Given
+        int id  = 10;
+        Customer customer = new Customer(
+                id, "alex", "alex@gmail.com", 19, Gender.FEMALE,
+                "password", "2222");
+        when(customerDao.selectCustomerById(id)).thenReturn(Optional.of(customer));
+        String bucket = "customer-bucket";
+        when(s3Buckets.getCustomer()).thenReturn(bucket);
+
+        when(s3Service.getObject(
+                bucket,
+                "profile-images/%s/%s".formatted(id, customer.getProfileImageId())
+        )).thenReturn("image".getBytes());
+
+        // When
+        byte[] actualImage = underTest.getCustomerProfileImage(id);
+
+        // Then
+        assertThat(actualImage).isEqualTo("image".getBytes());
+
+    }
+
+    @Test
+    void cannotDownloadProfileImageWhenCustomerDoesNotExist() {
+        //Given
+        int id  = 10;
+
+//        when(customerDao.selectCustomerById(id)).thenThrow( new ResourceNotFoundException(
+//                ""customer with id [%s] not found".formatted(id)
+//        ));
+        when(customerDao.selectCustomerById(id)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> underTest.getCustomerProfileImage(id))
+                .isInstanceOf(ResourceNotFoundException.class)
+                        .hasMessage("customer with id [%s] not found".formatted(id));
+
+        verifyNoInteractions(s3Service);
+        verifyNoInteractions(s3Buckets);
+
+    }
+
+    @Test
+    void cannotDownloadProfileImageWhenCustomerProfileImageIsBlank() {
+        // Given
+        int id  = 10;
+        Customer customer = new Customer(
+                id, "alex", "alex@gmail.com", 19, Gender.FEMALE,
+                "password", "");
+        when(customerDao.selectCustomerById(id)).thenReturn(Optional.of(customer));
+
+        assertThatThrownBy(() -> underTest.getCustomerProfileImage(id))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("customer with id [%s] profile Image not found".formatted(id));
+
+        verifyNoInteractions(s3Service);
+        verifyNoInteractions(s3Buckets);
     }
 
 }

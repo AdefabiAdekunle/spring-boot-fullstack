@@ -20,7 +20,7 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
     @Override
     public List<Customer> selectAllCustomer() {
         var sql = """
-                SELECT * FROM customer;
+                SELECT * FROM customer LIMIT 1000;
                 """;
 
 //        RowMapper<Customer> rowMapper = (rs , rowNum)-> {
@@ -150,5 +150,15 @@ public class CustomerJDBCDataAccessService implements CustomerDao {
                SELECT * FROM customer where email = ?;
                 """;
         return jdbcTemplate.query(sql,customerRowMapper, email).stream().findFirst();
+    }
+
+    @Override
+    public void updateCustomerProfileImageId(String profileImageId, Integer customerId) {
+        var sql = """
+                UPDATE customer
+                SET profile_image_id = ?
+                WHERE id = ?
+                """;
+        jdbcTemplate.update(sql,profileImageId, customerId);
     }
 }

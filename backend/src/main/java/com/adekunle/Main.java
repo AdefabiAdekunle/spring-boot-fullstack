@@ -3,6 +3,8 @@ package com.adekunle;
 import com.adekunle.customer.Customer;
 import com.adekunle.customer.CustomerRepository;
 import com.adekunle.customer.Gender;
+import com.adekunle.s3.S3Buckets;
+import com.adekunle.s3.S3Service;
 import com.github.javafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -54,6 +56,8 @@ public class Main {
     CommandLineRunner runner(CustomerRepository customerRepository, PasswordEncoder passwordEncoder) {
         Faker faker = new Faker();
         return args -> {
+
+            //testing customer creation
            // faker.internet().emailAddress();
             String firstname = faker.name().firstName();
             String emailAddress = firstname + "@gmail.com";
@@ -65,6 +69,16 @@ public class Main {
                     Gender.MALE,
                     passwordEncoder.encode(UUID.randomUUID().toString()));
             customerRepository.save(customer);
+
+            // Test Bucket Upload and Download
+            // Don't forget to put S3Service s3Service, S3Buckets s3Buckets in the runner arguemen
+//            s3Service.putObject(s3Buckets.getCustomer(), "foo",
+//                    "Hello World".getBytes());
+//
+//            byte [] obj = s3Service.getObject(s3Buckets.getCustomer(), "foo");
+//
+//            System.out.println("Hooray: " + new String(obj));
+
 
             // without using faker
 //            Customer alex = new Customer("Alex","alex@gmail.com",21);

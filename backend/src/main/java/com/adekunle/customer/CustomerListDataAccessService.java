@@ -35,6 +35,12 @@ public class CustomerListDataAccessService implements CustomerDao{
         return customers.stream().filter(customer -> customer.getEmail().equals(email))
                 .findFirst();
     }
+
+    @Override
+    public void updateCustomerProfileImageId(String profileImageId, Integer customerId) {
+        // TODO: Implement this.
+    }
+
     @Override
     public void insertCustomer(Customer customer) {
         customers.add(customer);
