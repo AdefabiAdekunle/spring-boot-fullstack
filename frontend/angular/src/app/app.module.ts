@@ -27,6 +27,7 @@ import {ToastModule} from "primeng/toast";
 import {ConfirmationService, MessageService} from "primeng/api";
 import {ConfirmDialogModule} from "primeng/confirmdialog";
 import { RegisterComponent } from './components/register/register.component';
+import {FileUploadModule} from "primeng/fileupload";
 
 @NgModule({
   declarations: [
@@ -40,24 +41,25 @@ import { RegisterComponent } from './components/register/register.component';
     CustomerCardComponent,
     RegisterComponent
   ],
-  imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    AppRoutingModule,
-    FormsModule,
-    InputTextModule,
-    AvatarModule,
-    MenuModule,
-    RippleModule,
-    ButtonModule,
-    SidebarModule,
-    HttpClientModule,
-    MessageModule,
-    CardModule,
-    BadgeModule,
-    ToastModule,
-    ConfirmDialogModule
-  ],
+    imports: [
+        BrowserModule,
+        BrowserAnimationsModule,
+        AppRoutingModule,
+        FormsModule,
+        InputTextModule,
+        AvatarModule,
+        MenuModule,
+        RippleModule,
+        ButtonModule,
+        SidebarModule,
+        HttpClientModule,
+        MessageModule,
+        CardModule,
+        BadgeModule,
+        ToastModule,
+        ConfirmDialogModule,
+        FileUploadModule
+    ],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,

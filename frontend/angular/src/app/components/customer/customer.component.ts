@@ -19,6 +19,8 @@ export class CustomerComponent implements OnInit {
   customer: CustomerRegistrationRequest = {};
 
   authResponse: AuthenticationResponse = {};
+
+  customerImageUrl: string = "";
   constructor(
     private customerService: CustomerService,
     private messageService: MessageService,
@@ -115,4 +117,22 @@ export class CustomerComponent implements OnInit {
     this.customer = {};
     this.operation = 'create';
   }
+
+  onUploadImage(formData: FormData) {
+    this.customerService.uploadCustomerProfileImage(this.customer.id, formData)
+      .subscribe({
+        next: () => {
+          this.display = false
+          this.messageService.add(
+            {severity: 'success',
+              summary: 'Customer Profile picture uploaded',
+              detail: `customer ${this.customer.name} profile image was successfully uploaded`}
+          );
+          this.findAllCustomers();
+          this.customerImageUrl = this.customerService.getCustomerProfileImageUrl(this.customer.id);
+        }
+      })
+  }
+
+
 }

@@ -1,5 +1,7 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {CustomerRegistrationRequest} from "../../models/customer-registration-request";
+import {MessageService} from "primeng/api";
+import {FileUpload} from "primeng/fileupload";
 
 @Component({
   selector: 'app-manage-customer',
@@ -8,6 +10,7 @@ import {CustomerRegistrationRequest} from "../../models/customer-registration-re
 })
 export class ManageCustomerComponent {
 
+  @ViewChild('fileUpload') fileUpload: FileUpload | undefined;
   @Input()
   operation: 'create' | 'update' = 'create';
 
@@ -19,6 +22,12 @@ export class ManageCustomerComponent {
 
   @Output()
   cancel: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  uploadImage: EventEmitter<FormData> = new EventEmitter<FormData>();
+
+  constructor(private messageService: MessageService) {
+  }
   get isCustomerValid(): boolean {
     return this.hasLength(this.customer.name) &&
       this.hasLength(this.customer.email) &&
@@ -44,4 +53,12 @@ export class ManageCustomerComponent {
   onCancel() {
     this.cancel.emit();
   }
+
+  onUpload(event:any) {
+    const formData = new FormData();
+    formData.append('file', event.files[0]);
+    this.uploadImage.emit(formData);
+    this.fileUpload?.clear();
+  }
+
 }

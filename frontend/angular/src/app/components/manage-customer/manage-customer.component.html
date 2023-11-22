@@ -1,5 +1,12 @@
 <div>
   <h2>{{ operation === 'update' ? 'Update customer' : 'New Customer' }}</h2>
+  <div class="field" *ngIf="operation === 'update'">
+    <h2 class="card flex justify-content-center">Upload your picture</h2>
+    <div class="card flex justify-content-center">
+      <p-fileUpload #fileUpload [customUpload]="true" (uploadHandler)="onUpload($event)"  [multiple]="false" accept="image/*" [maxFileSize]="1000000">
+      </p-fileUpload>
+    </div>
+  </div>
   <div class="field">
     <label for="firstName">Name</label>
     <input

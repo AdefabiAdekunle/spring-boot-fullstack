@@ -6,4 +6,5 @@ export interface CustomerDTO {
   age?: number;
   roles?: Array<string>;
   username?: string;
+  profileImageId?: string;
 }
