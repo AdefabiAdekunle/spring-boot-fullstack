@@ -37,13 +37,12 @@ public class SecurityFilterChainConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST,"/api/v1/customers", "/api/v1/auth/login").permitAll()
                         .requestMatchers(HttpMethod.GET,
-                                "/ping","/actuator/**", "/error", "api/v1/customers/*/profile-image").permitAll()
+                                "/ping","/actuator/**", "/error", "/api/v1/customers/*/profile-image").permitAll()
                         .anyRequest().authenticated()
                 ).sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling( exception -> exception.authenticationEntryPoint(authenticationEntryPoint));
         return http.build();
-
     }
 }
