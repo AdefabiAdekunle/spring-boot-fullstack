@@ -3,7 +3,7 @@
   "containerDefinitions": [
     {
       "name": "adekunle-api",
-      "image": "adekunle007/adekunle-api:21.11.2023.20.50.09",
+      "image": "adekunle007/adekunle-api:22.11.2023.05.26.00",
       "essential": true,
       "memory": 512,
       "portMappings": [
