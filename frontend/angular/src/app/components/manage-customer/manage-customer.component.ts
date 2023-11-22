@@ -11,6 +11,7 @@ import {FileUpload} from "primeng/fileupload";
 export class ManageCustomerComponent {
 
   @ViewChild('fileUpload') fileUpload: FileUpload | undefined;
+
   @Input()
   operation: 'create' | 'update' = 'create';
 

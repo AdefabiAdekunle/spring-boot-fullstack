@@ -6,6 +6,10 @@ aws:
       customer: fs-adekunle-customer-test
 spring:
   datasource:
-    url: jdbc:postgresql://awseb-e-psmh9yvtve-stack-awsebrdsdatabase-cwj2zgwhrxl5.cqfld9zlmnkq.us-east-2.rds.amazonaws.com:5432/customer
-    username: amigoscode
-    password: password
+    url: jdbc-secretsmanager:postgresql://awseb-e-psmh9yvtve-stack-awsebrdsdatabase-cwj2zgwhrxl5.cqfld9zlmnkq.us-east-2.rds.amazonaws.com:5432/customer
+    # With secret manager
+    username: test/full-stack/postgres # the secretId in AWS
+    driver-class-name: com.amazonaws.secretsmanager.sql.AWSSecretsManagerPostgreSQLDriver
+
+#    username: amigoscode
+#    password: password
